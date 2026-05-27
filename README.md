@@ -1,40 +1,110 @@
 # nb-website
 
-Wire any [nb](https://xwmx.github.io/nb/) notebook to a [Quartz](https://quartz.jzhao.xyz/) static site on GitHub Pages, with a custom domain. Manage content in nb-web; the site rebuilds automatically.
+Wire any [nb](https://xwmx.github.io/nb/) notebook to a [Quartz](https://quartz.jzhao.xyz/) static site on GitHub Pages, with a custom domain. Write and edit in [nb-web](https://github.com/linuxcaffe/nb-web); the site rebuilds automatically.
+
+**Live example:** [preciousfinds.ca](https://preciousfinds.ca) — built with this package.
 
 ```
-nb-web (write/edit)
+nb-web  (write & edit notes)
     ↓
-~/.nb/<notebook>/   (plain markdown files)
+~/.nb/<notebook>/        plain markdown files, git-managed by nb
     ↓  nb sync
-GitHub repo: <user>/<notebook>
-    ↓  GitHub Actions (every 30 min or manual trigger)
-Quartz builds static HTML
+GitHub: <user>/<notebook>    public content repo
+    ↓  GitHub Actions  (on push, every 30 min, or manual trigger)
+Quartz v4  builds static HTML
     ↓
-GitHub Pages → your-domain.com
+GitHub Pages  →  your-domain.com
 ```
+
+Two GitHub repos, zero servers, zero recurring cost.
 
 ---
 
 ## Prerequisites
 
-| Tool | Version | Notes |
-|------|---------|-------|
-| Node.js | v22+ | Check: `node --version`. Upgrade via nvm (see below). |
-| npm | v10.9.2+ | Comes with Node |
-| git | any recent | |
-| gh | any | [GitHub CLI](https://cli.github.com) — `gh auth login` before running |
-| nb | any | Notebook must exist: `nb notebooks add <name>` |
+| Tool | Version | Check | Install |
+|------|---------|-------|---------|
+| Node.js | v22+ | `node --version` | via nvm (see below) |
+| npm | v10.9.2+ | `npm --version` | comes with Node |
+| git | any | `git --version` | system package manager |
+| gh | any | `gh auth status` | [cli.github.com](https://cli.github.com) |
+| nb | any | `nb --version` | [xwmx.github.io/nb](https://xwmx.github.io/nb/) |
 
-### Upgrading Node.js with nvm
+### Node.js v22 via nvm
+
+The system Node on Ubuntu/Mint is typically v12 — far too old for Quartz. nvm installs v22 alongside it without touching the system Node or any other projects.
 
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash
-source ~/.bashrc   # or restart your shell
+source ~/.bashrc          # or open a new terminal
 nvm install 22
-nvm use 22
-node --version     # should show v22.x.x
+nvm alias default 22      # makes v22 the default for all new shells
+node --version            # v22.x.x
 ```
+
+### GitHub CLI — SSH auth
+
+The setup script uses SSH remote URLs. Confirm gh is configured for SSH:
+
+```bash
+gh auth status
+# Should show: Git operations configured to use ssh protocol
+```
+
+If not: `gh auth login` and select SSH when prompted.
+
+---
+
+## Before you run: scaffold the notebook
+
+Create the nb notebook and stub out your pages before running the setup script. The notebook name can include dots (`preciousfinds.ca` works fine).
+
+```bash
+nb notebooks add your-notebook
+```
+
+Then add at minimum an `index.md`. Use `--filename` to get clean URLs:
+
+```bash
+nb add your-notebook: --filename index.md --title "Your Site" --content $'\n'
+nb add your-notebook: --filename about.md --title "About" --content $'\n'
+```
+
+Or write the files directly to `~/.nb/your-notebook/` and update `.index`.
+
+### Recommended page structure (4-page brochure site)
+
+| File | Purpose |
+|------|---------|
+| `index.md` | Home / landing page |
+| `shop.md` | Links to your sales platforms |
+| `new-arrivals.md` | Regularly updated finds — gives repeat visitors a reason to return |
+| `about.md` | Your story — the page that turns browsers into buyers |
+
+### index.md frontmatter note
+
+Quartz renders the `title` frontmatter field as the page `<h1>` via its `ArticleTitle` component. **Don't repeat the title as a `# Heading` in the markdown content** — it will appear twice.
+
+```markdown
+---
+title: Your Site Name
+---
+
+*Your tagline here.*
+
+[Browse the Shop →](shop.md)
+```
+
+### Keeping drafts off the live site
+
+```yaml
+---
+title: Work in Progress
+draft: true
+---
+```
+
+Quartz's `RemoveDrafts` plugin (on by default) excludes any note with `draft: true`.
 
 ---
 
@@ -42,19 +112,26 @@ node --version     # should show v22.x.x
 
 ```bash
 cd ~/dev/nb-website
-chmod +x nb-website-setup.sh
 ./nb-website-setup.sh
 ```
 
-The script walks you through everything interactively, confirms before touching anything, then:
+The script is interactive — it confirms the full plan before touching anything. It will ask for:
 
-1. Ensures the nb notebook has a public GitHub remote (creates one if not)
-2. Clones Quartz v4 into `~/dev/quartz-<notebook>/`
-3. Patches `quartz.config.ts` with your site title and domain
-4. Writes a custom GitHub Actions workflow that fetches notebook content at build time
-5. Creates the Quartz config repo on GitHub and pushes
-6. Enables GitHub Pages (source: GitHub Actions)
-7. Sets the custom domain if provided
+- nb notebook name (e.g. `preciousfinds.ca`)
+- Quartz config repo name (default: `<notebook>-site`)
+- Site title (e.g. `Precious Finds`)
+- Custom domain (optional — leave blank for `<user>.github.io/<repo>`)
+
+Then it runs end-to-end without further prompts:
+
+1. Ensures the notebook has a public GitHub remote (creates one if not)
+2. Clones Quartz v4 into `~/dev/quartz-<notebook>/` and runs `npm ci`
+3. Applies the warm-vintage theme (fonts, colours, layout — see below)
+4. Patches `quartz.config.ts` with your site title and domain
+5. Writes the GitHub Actions deploy workflow
+6. Creates the Quartz config repo on GitHub, pushes with a clean history
+7. Enables GitHub Pages (source: GitHub Actions)
+8. Sets the custom domain if provided
 
 ---
 
@@ -62,36 +139,42 @@ The script walks you through everything interactively, confirms before touching 
 
 ### Two GitHub repos
 
-**`<user>/<notebook>`** — notebook content (public markdown files)
-- Managed entirely by `nb sync` / nb-web Sync button
-- The GitHub Action reads this repo at build time
-- Never push to this repo manually
+**`<user>/<notebook>`** — notebook content
+- Plain markdown files, managed entirely by `nb sync` and nb-web
+- The GitHub Action checks this out at build time
+- Don't push to it manually — let nb sync handle it
 
-**`<user>/<notebook>-site`** (or your chosen name) — Quartz config
-- Contains `quartz.config.ts`, `.github/workflows/deploy.yml`, and any static assets
-- Push changes here to update theme, plugins, or site config
-- Does **not** contain your notes — those come from the notebook repo
+**`<user>/<notebook>-site`** — Quartz config
+- `quartz.config.ts`, `quartz.layout.ts`, `.github/workflows/deploy.yml`, `quartz/styles/custom.scss`
+- Push changes here when you update the theme, layout, or site config
+- Contains no notes — content comes from the notebook repo at build time
 
 ### Local Quartz installation
 
-`~/dev/quartz-<notebook>/` — the Quartz v4 clone with your config applied.
+`~/dev/quartz-<notebook>/` — the Quartz v4 clone with your config applied. You can preview the site locally:
+
+```bash
+cd ~/dev/quartz-<notebook>
+npx quartz build --directory ~/.nb/<notebook>/ --serve
+# open http://localhost:8080
+```
 
 ---
 
 ## Ongoing workflow
 
-Your day-to-day is just two steps:
+Day-to-day is two steps:
 
-1. **Write** in nb-web (notebook: `<notebook>`)
-2. **Sync** — Menu → Sync (or `nb sync <notebook>`)
+1. **Write** in nb-web (switch to your notebook)
+2. **Sync** — Menu → Sync  (or `nb sync <notebook>` in the terminal)
 
-The site rebuilds from GitHub Actions within 30 minutes. For an immediate rebuild:
+GitHub Actions picks up the pushed content and rebuilds within 30 minutes. For an immediate rebuild:
 
 ```bash
 gh workflow run deploy.yml --repo <user>/<notebook>-site
 ```
 
-Or use the GitHub web UI: repo → Actions → Deploy to GitHub Pages → Run workflow.
+Or: GitHub → your site repo → Actions → Deploy to GitHub Pages → Run workflow.
 
 ---
 
@@ -106,89 +189,134 @@ At your domain registrar, add four A records pointing the apex (`@`) to GitHub P
 185.199.111.153
 ```
 
-Or if you prefer `www`:
+Or a CNAME for `www`:
 
 ```
-CNAME  www  →  <user>.github.io
+www  CNAME  <user>.github.io
 ```
 
-DNS propagation takes minutes to hours. GitHub will verify the domain and issue an HTTPS certificate automatically once DNS is live.
+DNS propagates in minutes to hours. GitHub automatically verifies the domain and issues an HTTPS certificate once DNS is live. You can check progress in the repo: Settings → Pages.
 
 ---
 
-## Customizing the site
+## Themes
 
-### Theme and configuration
+### warm-vintage (included)
 
-Edit `~/dev/quartz-<notebook>/quartz.config.ts`, then push:
+Applied automatically by the setup script. Designed for a boutique or vintage shop aesthetic.
+
+**Palette:** warm cream ground · deep rose accent (`#8b3a52`) · terracotta hover · warm brown text  
+**Fonts:** Playfair Display (headings) + Lora (body)  
+**Layout changes:**
+- Folder explorer hidden (4 pages don't need a tree)
+- Graph view removed
+- Backlinks hidden
+- Images get a warm shadow and rounded corners
+- Product photo paragraphs get a subtle card frame
+
+**Page-specific styling** (via Quartz's `body[data-slug]` attribute):
+- Home page: centred hero title in rose, tagline muted, "Browse the Shop →" becomes a filled button
+- Shop page: platform links (eBay, Etsy, Facebook by URL) styled as bordered rose buttons
+- New Arrivals: month headings in rose with breathing room between items
+
+### Applying the theme to an existing Quartz installation
+
+```bash
+~/dev/nb-website/themes/warm-vintage/apply.sh ~/dev/quartz-<notebook>
+```
+
+Then push:
 
 ```bash
 cd ~/dev/quartz-<notebook>
-git add quartz.config.ts
-git commit -m "theme: ..."
-git push
+git add -A && git commit -m "theme: warm-vintage" && git push
 ```
 
-Key fields:
+### Manual follow-up after apply
+
+The script clears Quartz's default footer links (GitHub/Discord). Add your own in `quartz.layout.ts`:
 
 ```typescript
-configuration: {
-  pageTitle: "Your Site Title",
-  baseUrl: "your-domain.com",
-  theme: {
-    // Light/dark color palette
-    colors: { light: { ... }, dark: { ... } },
-    // Font choices (Google Fonts names)
-    typography: { header: "Playfair Display", body: "Source Serif 4", code: "Fira Code" },
+footer: Component.Footer({
+  links: {
+    eBay: "https://ebay.ca/usr/YOURUSERNAME",
+    Etsy: "https://etsy.com/shop/YOURSHOPNAME",
   },
-  analytics: null,  // disable analytics
+}),
+```
+
+### Customising the palette
+
+Override any colour in `quartz/styles/custom.scss`:
+
+```scss
+:root {
+  --secondary: #4a6741;   // swap rose for sage green
+  --tertiary:  #8aad82;
 }
 ```
 
-Full reference: [quartz.jzhao.xyz/configuration](https://quartz.jzhao.xyz/configuration)
+Push to trigger a rebuild.
 
-### Static assets (images, favicon)
+### Changing fonts
 
-Drop files in `~/dev/quartz-<notebook>/quartz/static/` and push. They appear at `/static/filename` on your site.
+Edit `quartz.config.ts` — any Google Fonts name works:
+
+```typescript
+typography: {
+  header: "Cormorant Garamond",
+  body:   "Crimson Pro",
+  code:   "IBM Plex Mono",
+},
+```
+
+Full Quartz config reference: [quartz.jzhao.xyz/configuration](https://quartz.jzhao.xyz/configuration)
 
 ---
 
-## Notebook structure tips
+## Notebook tips
 
-Quartz renders all `.md` files it finds. A few conventions that work well:
-
-- `index.md` — becomes the home page (use a `title` frontmatter field)
-- `about.md`, `shop.md` etc. — top-level pages
-- Subdirectories become URL segments: `items/pyrex-dish.md` → `/items/pyrex-dish`
-- Tag pages are generated automatically from `#tag` usage in notes
-- Wikilinks (`[[note title]]`) work and become hyperlinks
-
-### Frontmatter
+### Frontmatter fields Quartz uses
 
 ```yaml
 ---
 title: Vintage Pyrex Finds
 tags: [pyrex, kitchen, ceramics]
 date: 2026-05-27
+draft: true          # exclude from build
 ---
 ```
 
-Quartz uses `title` as the page title and `date` for the "last updated" display. Tags generate tag index pages automatically.
+`title` → page `<h1>` and browser tab. `date` → "last updated" display. Tags generate index pages automatically.
 
-### Keeping drafts off the live site
+### URL structure
 
-Add `draft: true` to any note's frontmatter. Quartz's `RemoveDrafts` plugin (enabled by default) excludes them from the build.
+| File | URL |
+|------|-----|
+| `index.md` | `/` |
+| `about.md` | `/about` |
+| `items/pyrex-dish.md` | `/items/pyrex-dish` |
+
+Subdirectories become URL segments. Tag pages appear at `/tags/<tag>`.
+
+### Wikilinks
+
+`[[note title]]` in any note becomes a hyperlink. Works for cross-linking item pages, category pages, etc.
+
+### Static assets
+
+Drop images, favicon, etc. in `~/dev/quartz-<notebook>/quartz/static/`. They appear at `/static/filename` on the live site. Push after adding.
 
 ---
 
 ## Instant updates (optional)
 
-The default 30-minute schedule is fine for most use cases. If you want nb sync to trigger a rebuild immediately, add a dispatch workflow to the notebook repo:
+The default 30-minute schedule suits most workflows. For rebuilds triggered the moment you sync, add a dispatch workflow to the notebook repo:
 
 **`~/.nb/<notebook>/.github/workflows/notify-site.yml`**
 
 ```yaml
-name: Notify site to rebuild
+name: Notify site repo to rebuild
 on:
   push:
     branches: [main]
@@ -207,7 +335,7 @@ jobs:
             })
 ```
 
-And in the site repo's `deploy.yml`, add `repository_dispatch` to the `on:` triggers:
+Add `repository_dispatch` to the site repo's `deploy.yml` triggers:
 
 ```yaml
 on:
@@ -215,31 +343,39 @@ on:
     branches: [main]
   repository_dispatch:
     types: [content-update]
+  schedule:
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 ```
 
-You'll need to create a [Personal Access Token](https://github.com/settings/tokens) with `repo` scope and add it as a secret named `SITE_DISPATCH_TOKEN` in the notebook repo settings.
+Create a [Personal Access Token](https://github.com/settings/tokens) with `repo` scope and add it as a secret named `SITE_DISPATCH_TOKEN` in the notebook repo's Settings → Secrets.
 
 ---
 
 ## Troubleshooting
 
-**Build fails with "content directory not found"**
-The notebook repo might be empty or have no committed files. Add at least an `index.md` and run `nb sync <notebook>`.
+**"content directory not found" in GitHub Actions**  
+The notebook repo has no committed files. Add at least an `index.md`, run `nb sync <notebook>`, and re-trigger the workflow.
 
-**Site shows 404 after DNS change**
-Wait for DNS propagation (up to 24h). Check: `dig your-domain.com` should return GitHub Pages IPs. Also confirm the domain is set in repo Settings → Pages.
+**Site shows 404 after DNS change**  
+Wait for DNS propagation (up to 24h). Verify: `dig your-domain.com` should return GitHub Pages IPs. Confirm the custom domain is set in the site repo: Settings → Pages.
 
-**`gh api` errors during setup**
-Your `gh` version may be too old for some API calls. The script prints manual fallback instructions. Key manual step: repo Settings → Pages → Source: GitHub Actions.
+**`gh api` Pages setup fails**  
+gh v2.4.x (the Ubuntu 22.04 system package) has limited API support. Enable manually: site repo → Settings → Pages → Source: GitHub Actions.
 
-**`npx quartz build` fails locally**
+**Setup script can't push — permission denied (publickey)**  
+gh is not configured for SSH. Run `gh auth login` and select SSH, or check that your SSH key is added to GitHub: `ssh -T git@github.com`.
+
+**`npx quartz build` fails locally**  
 ```bash
 cd ~/dev/quartz-<notebook>
 npx quartz build --directory ~/.nb/<notebook>/ --verbose
 ```
-Common causes: Node version too low, or `npm ci` not run after cloning.
+Common causes: Node below v22, or `npm ci` not run after cloning.
+
+**Title appears twice on a page**  
+You have both `title:` in frontmatter and a `# Heading` in the markdown body. Remove the markdown heading — Quartz's `ArticleTitle` component renders the frontmatter title as `<h1>` already.
 
 ---
 
-*Built on [nb](https://xwmx.github.io/nb/) + [Quartz](https://quartz.jzhao.xyz/) + [GitHub Pages](https://pages.github.com/). Zero recurring cost.*
+*Built on [nb](https://xwmx.github.io/nb/) + [Quartz](https://quartz.jzhao.xyz/) + [GitHub Pages](https://pages.github.com/). Proven on [preciousfinds.ca](https://preciousfinds.ca).*
