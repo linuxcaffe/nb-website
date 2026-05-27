@@ -1,0 +1,284 @@
+@use "./base.scss";
+
+// ── Warm Vintage theme ────────────────────────────────────────────────────────
+// Palette: cream ground, warm brown text, deep rose accent, gold hover
+// Fonts: Playfair Display (headers) + Lora (body) — set in quartz.config.ts
+
+// ── Colour variables ──────────────────────────────────────────────────────────
+
+:root {
+  --light:          #faf7f0;   // warm cream background
+  --lightgray:      #d9cdbf;   // warm greige — borders, subtle fills
+  --gray:           #a08c7e;   // mid warm brown — secondary text, icons
+  --darkgray:       #4a3728;   // body text
+  --dark:           #2c1a0e;   // headings, strong elements
+  --secondary:      #8b3a52;   // deep rose — links, accent
+  --tertiary:       #b8704a;   // warm terracotta — hover states
+  --highlight:      rgba(201, 163, 82, 0.15);
+  --textHighlight:  rgba(139, 58, 82, 0.2);
+}
+
+:root[saved-theme="dark"] {
+  --light:          #1c1208;
+  --lightgray:      #2e1f0e;
+  --gray:           #7a5c48;
+  --darkgray:       #d4c5b5;
+  --dark:           #faf7f0;
+  --secondary:      #c97a8f;
+  --tertiary:       #c9a352;
+  --highlight:      rgba(201, 163, 82, 0.12);
+  --textHighlight:  rgba(201, 163, 82, 0.3);
+}
+
+// ── Typography ────────────────────────────────────────────────────────────────
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--dark);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.article-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.center article {
+  h2 {
+    border-bottom: 1px solid var(--lightgray);
+    padding-bottom: 0.25em;
+    margin-top: 2.25rem;
+  }
+
+  p {
+    line-height: 1.8;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--lightgray);
+    margin: 2rem auto;
+    width: 50%;
+  }
+
+  // Warm shadow on all images; looks great for product photos
+  img {
+    border-radius: 5px;
+    box-shadow: 0 2px 16px rgba(44, 26, 14, 0.13);
+    max-width: 100%;
+  }
+
+  // Paragraphs that are just an image + caption get a subtle card frame
+  p:has(> img:only-child) {
+    background: color-mix(in srgb, var(--light) 70%, var(--lightgray));
+    border: 1px solid var(--lightgray);
+    border-radius: 6px;
+    padding: 0.75rem;
+  }
+}
+
+// ── Links ─────────────────────────────────────────────────────────────────────
+
+a {
+  color: var(--secondary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--tertiary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, var(--tertiary) 60%, transparent);
+  }
+}
+
+// ── Site title (left sidebar) ─────────────────────────────────────────────────
+
+.page-title {
+  font-size: 1.25rem;
+  letter-spacing: 0.01em;
+
+  a {
+    color: var(--secondary);
+    font-weight: 700;
+
+    &:hover {
+      color: var(--tertiary);
+      text-decoration: none;
+    }
+  }
+}
+
+// ── Left sidebar — hide Explorer, keep Search + Darkmode ──────────────────────
+
+.explorer {
+  display: none;
+}
+
+// ── Right sidebar — Graph removed in layout.ts; belt+suspenders ───────────────
+
+.graph {
+  display: none;
+}
+
+.backlinks {
+  display: none;
+}
+
+// ── Content meta (read time, date) ────────────────────────────────────────────
+
+.content-meta {
+  color: var(--gray);
+  font-size: 0.85rem;
+}
+
+// ── Tags ──────────────────────────────────────────────────────────────────────
+
+.tags a {
+  background: color-mix(in srgb, var(--secondary) 10%, transparent);
+  color: var(--secondary);
+  border: 1px solid color-mix(in srgb, var(--secondary) 30%, transparent);
+  border-radius: 3px;
+  padding: 0.1em 0.5em;
+  font-size: 0.82rem;
+  text-decoration: none;
+
+  &:hover {
+    background: color-mix(in srgb, var(--secondary) 18%, transparent);
+    text-decoration: none;
+    color: var(--secondary);
+  }
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+
+#search-bar {
+  background: var(--light);
+  border-color: var(--lightgray);
+
+  &:focus {
+    border-color: var(--secondary);
+  }
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+
+.page-footer {
+  border-top: 1px solid var(--lightgray);
+
+  p, a {
+    color: var(--gray);
+    font-size: 0.85rem;
+  }
+
+  a:hover {
+    color: var(--secondary);
+    text-decoration: none;
+  }
+}
+
+// ── Home page ─────────────────────────────────────────────────────────────────
+// body[data-slug="index"] is stamped by Quartz on every page
+
+body[data-slug="index"] {
+  .article-title {
+    text-align: center;
+    font-size: 3.4rem;
+    color: var(--secondary);
+    margin-top: 2.5rem;
+    margin-bottom: 0.1em;
+  }
+
+  // Tagline: first paragraph of content (the em line)
+  .center article > p:first-child {
+    text-align: center;
+    color: var(--gray);
+    font-size: 1.1rem;
+    margin-top: 0;
+    margin-bottom: 2rem;
+  }
+
+  // Hide the content-meta (date/read time) on the landing page
+  .content-meta {
+    display: none;
+  }
+
+  // "Browse the Shop →" link — make it read as a CTA
+  .center article a:first-of-type {
+    display: inline-block;
+    background: var(--secondary);
+    color: var(--light) !important;
+    padding: 0.5em 1.5em;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    margin-block: 0.5rem;
+
+    &:hover {
+      background: var(--tertiary);
+      text-decoration: none;
+    }
+  }
+
+  // "## Recently Added" section heading — add a decorative touch
+  .center article h2:first-of-type {
+    text-align: center;
+    border-bottom: none;
+    margin-top: 3rem;
+
+    &::after {
+      content: "";
+      display: block;
+      width: 3rem;
+      height: 2px;
+      background: var(--secondary);
+      margin: 0.4rem auto 0;
+      border-radius: 1px;
+    }
+  }
+}
+
+// ── New Arrivals page ─────────────────────────────────────────────────────────
+
+body[data-slug="new-arrivals"] {
+  // Month headings (## May 2026) — pull some vertical breathing room
+  .center article h2 {
+    margin-top: 3rem;
+    color: var(--secondary);
+  }
+
+  // Item headings (### Item Name)
+  .center article h3 {
+    margin-bottom: 0.25rem;
+  }
+}
+
+// ── Shop page ─────────────────────────────────────────────────────────────────
+
+body[data-slug="shop"] {
+  // Platform sections (## eBay, ## Etsy, etc.) — space them out
+  .center article h2 {
+    margin-top: 2.5rem;
+    font-size: 1.5rem;
+  }
+
+  // Platform "Browse →" links — button style
+  .center article a[href*="ebay"],
+  .center article a[href*="etsy"],
+  .center article a[href*="facebook"] {
+    display: inline-block;
+    border: 1.5px solid var(--secondary);
+    color: var(--secondary);
+    padding: 0.35em 1.1em;
+    border-radius: 3px;
+    font-weight: 600;
+    margin-top: 0.25rem;
+
+    &:hover {
+      background: var(--secondary);
+      color: var(--light) !important;
+      text-decoration: none;
+    }
+  }
+}

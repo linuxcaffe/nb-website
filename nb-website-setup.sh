@@ -149,6 +149,21 @@ setup_quartz() {
   ok "Quartz configured"
 }
 
+# ── Theme ──────────────────────────────────────────────────────────────────────
+
+apply_theme() {
+  local theme="${1:-warm-vintage}"
+  local apply_script="${SCRIPT_DIR}/themes/${theme}/apply.sh"
+
+  if [[ -x "$apply_script" ]]; then
+    info "Applying theme: ${theme}..."
+    bash "$apply_script" "$QUARTZ_DIR"
+    ok "Theme applied"
+  else
+    warn "Theme '${theme}' not found at ${apply_script} — skipping."
+  fi
+}
+
 # ── Deploy workflow ────────────────────────────────────────────────────────────
 
 write_deploy_workflow() {
@@ -260,6 +275,7 @@ check_prereqs
 gather_inputs
 ensure_notebook_remote
 setup_quartz
+apply_theme "warm-vintage"
 write_deploy_workflow
 push_quartz_config
 enable_pages
