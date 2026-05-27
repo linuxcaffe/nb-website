@@ -110,7 +110,7 @@ ensure_notebook_remote() {
     info "Creating public GitHub repo ${GH_USER}/${NOTEBOOK}..."
     gh repo create "${GH_USER}/${NOTEBOOK}" --public \
       --description "${SITE_TITLE} — nb notebook content"
-    git -C "$NB_DIR" remote add origin "https://github.com/${GH_USER}/${NOTEBOOK}.git"
+    git -C "$NB_DIR" remote add origin "git@github.com:${GH_USER}/${NOTEBOOK}.git"
     git -C "$NB_DIR" push -u origin HEAD
     ok "Notebook repo created: github.com/${GH_USER}/${NOTEBOOK}"
   else
@@ -200,7 +200,7 @@ push_quartz_config() {
     --description "Quartz site config for ${SITE_TITLE}" 2>/dev/null \
     || warn "Repo may already exist — pushing anyway."
 
-  git remote add origin "https://github.com/${GH_USER}/${SITE_REPO}.git"
+  git remote add origin "git@github.com:${GH_USER}/${SITE_REPO}.git"
   git push -u origin main
 
   ok "Pushed to github.com/${GH_USER}/${SITE_REPO}"
