@@ -287,6 +287,14 @@ The same principle applies everywhere: tag index pages (`/tags/<tag>`) come from
 
 **The rule of thumb: if a page can be derived from frontmatter, it should be.** Never create a hand-written index page that duplicates information already in your notes. If you find yourself maintaining a list that mirrors your item data, that list should be a component or an emitter, not a note.
 
+### Simple pages vs item notes
+
+Most pages on an nb-website are straightforward: a little frontmatter for the title and tags, then markdown for the content. The frontmatter can be minimal, or absent entirely — a note that is just markdown prose publishes just fine.
+
+Item notes are the exception. Their published content comes entirely from frontmatter fields — title, price, condition, images, and so on — rendered by the `ItemMeta` and `ItemGallery` components. Any markdown text written *after* the frontmatter block is treated as **internal notes**: visible to you in nb and nb-web, invisible on the published site. This makes item notes a natural place to record provenance, purchase details, seller notes, or anything else you want to remember but not advertise.
+
+The same selective-privacy pattern works on any note via HTML comments: anything inside `<!-- ... -->` is stripped by the markdown renderer and never appears on the published page. Useful for reminders, to-do items, or draft text you are not ready to show.
+
 ---
 
 ## Notebook tips
