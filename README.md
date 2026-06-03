@@ -277,6 +277,18 @@ Full Quartz config reference: [quartz.jzhao.xyz/configuration](https://quartz.jz
 
 ---
 
+## Dynamic content — the core principle
+
+The site's structure is a live reflection of the notebook's frontmatter. Index pages, category pages, tag pages, and navigation are all **generated at build time from your content** — never maintained by hand alongside it.
+
+Concretely: if an item note has `category: ceramics`, a fully rendered `/category/ceramics` page appears in the next build — populated with every available item in that category, in reverse-chronological order, with a category navigation bar derived from all active items. Remove the last ceramics item and the page disappears. Rename a category across your items and the old page vanishes, the new one appears.
+
+The same principle applies everywhere: tag index pages (`/tags/<tag>`) come from `tags:` frontmatter; the shop navigation populates from `category:` fields on available items; the New Arrivals feed is the `[new]`-tagged item list sorted by date.
+
+**The rule of thumb: if a page can be derived from frontmatter, it should be.** Never create a hand-written index page that duplicates information already in your notes. If you find yourself maintaining a list that mirrors your item data, that list should be a component or an emitter, not a note.
+
+---
+
 ## Notebook tips
 
 ### Frontmatter fields Quartz uses
