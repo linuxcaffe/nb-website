@@ -1,14 +1,16 @@
 # nb-website
 
-Wire any [nb](https://xwmx.github.io/nb/) notebook to a [Quartz](https://quartz.jzhao.xyz/) static site on GitHub Pages, with a custom domain. Write and edit in [nb-web](https://github.com/linuxcaffe/nb-web); the site rebuilds automatically.
+Wire any [nb](https://xwmx.github.io/nb/) notebook to a [Quartz](https://quartz.jzhao.xyz/) static site on GitHub Pages, with a custom domain. The site rebuilds automatically whenever you sync.
+
+**nb is required. [nb-web](https://github.com/linuxcaffe/nb-web) is recommended** — it gives you a visual editor, template picker, and sync UI, but the pipeline works fine with only the `nb` CLI and a text editor.
 
 **Live example:** [preciousfinds.ca](https://preciousfinds.ca) — built with this package.
 
 ```
-nb-web  (write & edit notes)
+nb-web or any text editor  (write & edit notes)   ← recommended, not required
     ↓
 ~/.nb/<notebook>/        plain markdown files, git-managed by nb
-    ↓  nb sync
+    ↓  nb sync  (or git push)
 GitHub: <user>/<notebook>    public content repo
     ↓  GitHub Actions  (on push, every 30 min, or manual trigger)
 Quartz v4  builds static HTML
@@ -29,6 +31,7 @@ Two GitHub repos, zero servers, zero recurring cost.
 | git | any | `git --version` | system package manager |
 | gh | any | `gh auth status` | [cli.github.com](https://cli.github.com) |
 | nb | any | `nb --version` | [xwmx.github.io/nb](https://xwmx.github.io/nb/) |
+| nb-web | any | — | [github.com/linuxcaffe/nb-web](https://github.com/linuxcaffe/nb-web) — **recommended**, not required |
 
 ### Node.js v22 via nvm
 
@@ -165,8 +168,8 @@ npx quartz build --directory ~/.nb/<notebook>/ --serve
 
 Day-to-day is two steps:
 
-1. **Write** in nb-web (switch to your notebook)
-2. **Sync** — Menu → Sync  (or `nb sync <notebook>` in the terminal)
+1. **Write** — in nb-web, or any text editor, or directly with `nb add <notebook>:`
+2. **Sync** — `nb sync <notebook>` (or Menu → Sync in nb-web)
 
 GitHub Actions picks up the pushed content and rebuilds within 30 minutes. For an immediate rebuild:
 
