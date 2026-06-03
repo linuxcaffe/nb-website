@@ -299,18 +299,73 @@ The same selective-privacy pattern works on any note via HTML comments: anything
 
 ## Notebook tips
 
-### Frontmatter fields Quartz uses
+### Canonical frontmatter — pages
 
 ```yaml
 ---
-title: Vintage Pyrex Finds
-tags: [pyrex, kitchen, ceramics]
-date: 2026-05-27
-draft: true          # exclude from build
+title: New Arrivals
+caption: Fresh finds, updated regularly.
+footnote: Follow us on [eBay](https://ebay.ca/usr/handle) or [Etsy](https://etsy.com/shop/handle).
+tags: []
+SEO:
 ---
 ```
 
-`title` → page `<h1>` and browser tab. `date` → "last updated" display. Tags generate index pages automatically.
+| Field | Purpose |
+|-------|---------|
+| `title` | Page `<h1>` and browser tab |
+| `caption` | Shown in the site header as a per-page tagline, overriding the sitewide tagline from `_meta.md` |
+| `footnote` | Rendered below page content — good for calls to action or platform links |
+| `tags` | Taxonomy; Quartz auto-generates a `/tags/<tag>` index page for each value |
+| `SEO` | Page-level meta keywords, appended to sitewide SEO from `_meta.md` |
+
+`date` is intentionally absent — Quartz falls back to git history for pages. Only set it explicitly if you need to override. Add `draft: true` to exclude a page from the build entirely.
+
+### Canonical frontmatter — shop items
+
+```yaml
+---
+title: Whiskey tumbler
+category: glassware
+caption: Set of 4 HiBall glasses
+description: Heavy 10oz tumblers, 3.5" tall with a bold squared base.
+qtty: 1
+price: $170.00
+date: 2026-06-01
+size: 8oz, 3.5"h × 3"w
+condition: Excellent
+shipping: Bubble-wrapped box, +$12.50
+status: available
+image: photo1.jpg, photo2.jpg
+platform: Etsy
+listing:
+tags: [new]
+---
+```
+
+| Field | Purpose |
+|-------|---------|
+| `title` | Item name |
+| `category` | Drives the category badge and auto-generated `/category/<name>` page |
+| `caption` | Short hook shown on item cards in grids |
+| `description` | One-sentence description shown on the item page |
+| `qtty` | Quantity; defaults to `1` |
+| `price` | Display price — any format, rendered as-is |
+| `date` | Listed date, shown in the specs block as "Listed: …" |
+| `size` | Physical dimensions or clothing size |
+| `condition` | Condition description |
+| `shipping` | Shipping note or cost |
+| `status` | `available` or `sold`; drives badge colour and category page filtering |
+| `image` | Comma-separated filenames from the notebook's `images/` folder |
+| `platform` | Platform name (Etsy, eBay, …) |
+| `listing` | Full listing URL; if set alongside `platform`, renders a "View on …" button |
+| `tags` | Use `[new]` to appear in New Arrivals; other tags generate tag index pages |
+
+Any body text after the frontmatter block is **internal notes** — visible in nb and nb-web, never published to the site.
+
+### Generic fields vs shop fields
+
+The page fields (`title`, `caption`, `footnote`, `tags`, `SEO`) belong to the core nb-website theme and apply to any site. The item fields (`category`, `price`, `qtty`, `image`, `platform`, `listing`, `condition`, `size`, `shipping`, `status`) belong to the **shop extension** — the `components/shop/` components and `CategoryPage` emitter. A non-shop nb-website uses only page-style notes and ignores the item field set entirely.
 
 ### URL structure
 
