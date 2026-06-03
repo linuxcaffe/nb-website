@@ -48,20 +48,27 @@ export default (() => {
         if (dmIcon) dmIcon.textContent = dark ? '☀️' : '🌙'
       }
 
-      dmBtn?.addEventListener('click', () => {
+      function onDmClick() {
         const cur  = document.documentElement.getAttribute('saved-theme') ?? 'light'
         const next = cur === 'dark' ? 'light' : 'dark'
         document.documentElement.setAttribute('saved-theme', next)
         localStorage.setItem('theme', next)
         window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: next } }))
         syncDarkmode()
-      })
+      }
 
-      window.addEventListener('themechange', syncDarkmode)
-      window.addCleanup?.(() => window.removeEventListener('themechange', syncDarkmode))
-
-      searchBtn?.addEventListener('click', () => {
+      function onSearchClick() {
         document.querySelector('.search button')?.click()
+      }
+
+      dmBtn?.addEventListener('click', onDmClick)
+      window.addEventListener('themechange', syncDarkmode)
+      searchBtn?.addEventListener('click', onSearchClick)
+
+      window.addCleanup?.(() => {
+        dmBtn?.removeEventListener('click', onDmClick)
+        window.removeEventListener('themechange', syncDarkmode)
+        searchBtn?.removeEventListener('click', onSearchClick)
       })
 
       syncDarkmode()
