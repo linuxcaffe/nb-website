@@ -149,6 +149,47 @@ setup_quartz() {
   ok "Quartz configured"
 }
 
+# ── Meta note ─────────────────────────────────────────────────────────────────
+
+create_meta_note() {
+  local meta_file="${NB_DIR}/_meta.md"
+  if [[ -f "$meta_file" ]]; then
+    warn "_meta.md already exists in notebook — skipping."
+    return
+  fi
+
+  info "Creating _meta.md in notebook..."
+  local template="${SCRIPT_DIR}/templates/_meta.md"
+  if [[ -f "$template" ]]; then
+    sed "s/SITE_TITLE/${SITE_TITLE}/g" "$template" > "$meta_file"
+  else
+    cat > "$meta_file" <<EOF
+---
+tagline: A tagline for your site
+description: A brief description of your site for search engines.
+SEO: comma, separated, keywords
+copyright: "© $(date +%Y) ${SITE_TITLE}"
+instagram: ""
+ebay: ""
+etsy: ""
+---
+
+Site-wide configuration for ${SITE_TITLE}.
+Edit this note to update the site header tagline, footer copyright, and social links.
+Fields left empty ("") are not shown on the site.
+
+**tagline** — shown in the site header on pages that have no caption of their own
+**description** — site-wide meta description used in search engine results
+**SEO** — additional keywords for search engines
+**copyright** — footer copyright line
+**instagram / ebay / etsy** — platform handles (no @ or URL prefix) for footer links
+EOF
+  fi
+  # Register with nb's index
+  nb index add "_meta.md" --notebook "$NOTEBOOK" 2>/dev/null || true
+  ok "_meta.md created (edit it to customise your site header/footer)"
+}
+
 # ── Theme ──────────────────────────────────────────────────────────────────────
 
 apply_theme() {
@@ -275,6 +316,7 @@ check_prereqs
 gather_inputs
 ensure_notebook_remote
 setup_quartz
+create_meta_note
 apply_theme "warm-vintage"
 write_deploy_workflow
 push_quartz_config

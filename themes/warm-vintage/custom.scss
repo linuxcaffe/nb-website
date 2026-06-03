@@ -178,107 +178,18 @@ a {
   }
 }
 
-// ── Home page ─────────────────────────────────────────────────────────────────
-// body[data-slug="index"] is stamped by Quartz on every page
+// ── Layout: single-column, no sidebars ───────────────────────────────────────
 
-body[data-slug="index"] {
-  .article-title {
-    text-align: center;
-    font-size: 3.4rem;
-    color: var(--secondary);
-    margin-top: 2.5rem;
-    margin-bottom: 0.1em;
-  }
-
-  // Tagline: first paragraph of content (the em line)
-  .center article > p:first-child {
-    text-align: center;
-    color: var(--gray);
-    font-size: 1.1rem;
-    margin-top: 0;
-    margin-bottom: 2rem;
-  }
-
-  // Hide the content-meta (date/read time) on the landing page
-  .content-meta {
-    display: none;
-  }
-
-  // "Browse the Shop →" link — make it read as a CTA
-  .center article a:first-of-type {
-    display: inline-block;
-    background: var(--secondary);
-    color: var(--light) !important;
-    padding: 0.5em 1.5em;
-    border-radius: 3px;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    margin-block: 0.5rem;
-
-    &:hover {
-      background: var(--tertiary);
-      text-decoration: none;
-    }
-  }
-
-  // "## Recently Added" section heading — add a decorative touch
-  .center article h2:first-of-type {
-    text-align: center;
-    border-bottom: none;
-    margin-top: 3rem;
-
-    &::after {
-      content: "";
-      display: block;
-      width: 3rem;
-      height: 2px;
-      background: var(--secondary);
-      margin: 0.4rem auto 0;
-      border-radius: 1px;
-    }
-  }
+#quartz-body {
+  display: block !important;
 }
 
-// ── New Arrivals page ─────────────────────────────────────────────────────────
-
-body[data-slug="new-arrivals"] {
-  // Month headings (## May 2026) — pull some vertical breathing room
-  .center article h2 {
-    margin-top: 3rem;
-    color: var(--secondary);
-  }
-
-  // Item headings (### Item Name)
-  .center article h3 {
-    margin-bottom: 0.25rem;
-  }
+// Search lives in afterBody (triggered by SiteHeader icon) — hide the element
+.after-body > .search {
+  display: none;
 }
 
-// ── Shop page ─────────────────────────────────────────────────────────────────
-
-body[data-slug="shop"] {
-  // Platform sections (## eBay, ## Etsy, etc.) — space them out
-  .center article h2 {
-    margin-top: 2.5rem;
-    font-size: 1.5rem;
-  }
-
-  // Platform "Browse →" links — button style
-  .center article a[href*="ebay"],
-  .center article a[href*="etsy"],
-  .center article a[href*="facebook"] {
-    display: inline-block;
-    border: 1.5px solid var(--secondary);
-    color: var(--secondary);
-    padding: 0.35em 1.1em;
-    border-radius: 3px;
-    font-weight: 600;
-    margin-top: 0.25rem;
-
-    &:hover {
-      background: var(--secondary);
-      color: var(--light) !important;
-      text-decoration: none;
-    }
-  }
+// Flush the page header to the top of the content area
+.page-header {
+  margin-top: 0 !important;
 }

@@ -1,0 +1,77 @@
+// ── Shop site-wide header ─────────────────────────────────────────────────────
+
+.site-header-wrap {
+  width: 100%;
+  background: color-mix(in srgb, var(--lightgray) 18%, var(--light));
+  border-bottom: 1px solid var(--lightgray);
+}
+
+.site-header-bar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0.6rem 1.25rem 0.5rem;
+  box-sizing: border-box;
+}
+
+.site-header-left {
+  // balances the right-side icons to keep the center truly centered
+}
+
+.site-header-center {
+  text-align: center;
+  line-height: 1.25;
+}
+
+.site-header-logo {
+  font-family: var(--headerFont);
+  font-style: italic;
+  font-size: 1.75rem;
+  color: var(--secondary) !important;
+  text-decoration: none !important;
+  display: inline-block;
+  line-height: 1;
+
+  &:hover {
+    color: var(--tertiary) !important;
+    text-decoration: none !important;
+  }
+}
+
+.site-header-tld {
+  font-size: 0.9rem;
+  vertical-align: super;
+  opacity: 0.7;
+  margin-left: 1px;
+}
+
+.site-header-tagline {
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--gray);
+  margin-top: 0.1rem;
+}
+
+.site-header-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.site-header-icon-btn {
+  background: none;
+  border: none;
+  color: var(--gray);
+  font-size: 1.05rem;
+  cursor: pointer;
+  padding: 0.3rem 0.4rem;
+  border-radius: 4px;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--secondary) 10%, transparent);
+    color: var(--secondary);
+  }
+}
